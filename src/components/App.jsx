@@ -1,54 +1,60 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Statistics } from './Statistics/Statistics'
 import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions'
 import { Notification } from './Notification'
 
-export class App extends React.Component  {
-state = { 
-  good: 0,  
-  neutral: 0,
-  bad: 0,
-}
+export function App() {
+  
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
  
-  countPositiveFeedbackPercentage() {
-    return Math.floor(this.state.good / (this.state.good + this.state.neutral + this.state.bad) * 100)
+  function countPositiveFeedbackPercentage() {
+    return Math.floor(good / (good + neutral + bad) * 100)
   }
-  countTotalFeedback(){
-    return this.state.good + this.state.neutral + this.state.bad
+  function countTotalFeedback(){
+    return good + neutral + bad
   }
-  onLeaveFeedback = opt => {
-    this.setState(prevState => ({ [opt]: prevState[opt] + 1 }));
+  function onLeaveFeedback (opt) {
+
+    switch(opt) {
+    
+    case 'good':  
+    setGood(s => s + 1)
+        break
+      
+    case 'neutral':
+     setNeutral(s => s + 1)
+        break
+      
+    case 'bad':
+    setBad(s => s + 1)
+        break
+      
+      default:
+         throw new Error('something went wrong');
+      
+
+}
   };
+ 
   
 
-  
-  render() {
-    if (this.state.good > 0 || this.state.neutral > 0 || this.state.bad > 0) {
-      return (
-        <>
+  return (
+    <>
         <FeedbackOptions options={['good', 'neutral', 'bad']}
-                         onHandleClick={this.onLeaveFeedback} />
-        <Statistics
-          good={this.state.good}
-          neutral={this.state.neutral}
-          bad={this.state.bad}
-          total={this.countTotalFeedback()}
-          positivePercentage={this.countPositiveFeedbackPercentage()}
-        /> 
+        onHandleClick={onLeaveFeedback} />
+        {countTotalFeedback() === 0 && <Notification message='There is no feedback'/>} 
+        {countTotalFeedback() > 0 && <Statistics
+          good={good}
+          neutral={neutral}
+          bad={bad}
+          total={countTotalFeedback()}
+          positivePercentage={countPositiveFeedbackPercentage()}
+        />}
+         
     </>
-    )
-    } else {
-      return (
-          <>
-          <FeedbackOptions options={['good', 'neutral', 'bad']}
-            onHandleClick={this.onLeaveFeedback} />
-          <Notification message={'There is no feedback'}></Notification>            
-          </>
-
-      )
-
-    }
-  }
+)
  
 };
